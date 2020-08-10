@@ -629,6 +629,7 @@ dependencies = [
  "dirs",
  "rpassword",
  "scrypt 0.3.1",
+ "secrecy",
  "structopt",
 ]
 
