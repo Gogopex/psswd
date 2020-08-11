@@ -97,11 +97,6 @@ fn decrypt(encrypted_pwd: &[u8], passphrase: String) -> Result<Vec<u8>, Error> {
     Ok(decrypted)
 }
 
-// #[derive(Debug, Serialize, Deserialize)]
-// struct Config {
-//     folder: String,
-// }
-
 fn config() -> Result<(), Error> {
     match fs::create_dir(full_dir()) {
         Ok(()) => {
@@ -113,7 +108,6 @@ fn config() -> Result<(), Error> {
     };
 
     Ok(())
-    // unimplemented!()
 }
 
 fn list() -> Result<(), Error> {
