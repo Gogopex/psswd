@@ -10,4 +10,4 @@
   - during `psswd list`
 - add `psswd delete` to be able to delete psswd file by specifying shortname
 - add `psswd delete --all` to be able to delete entire .psswd folder
-- handle import of CSV files through `psswd import <filename>`
+- handle import of CSV files through `psswd import <filename>
