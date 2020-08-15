@@ -7,7 +7,7 @@ use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-#[structopt(setting = AppSettings::InferSubcommands, about="Shell password manager using age-encryption")]
+#[structopt(setting = AppSettings::InferSubcommands, about="Password manager using age-encryption")]
 enum Opt {
     /// Creates a new entry containing an encrypted password.
     #[structopt(alias = "create")]
@@ -23,8 +23,8 @@ enum Opt {
     Delete {
         #[structopt(short, long)]
         all: bool,
-        #[structopt(short, long, required_unless = "all")]
-        entry: String,
+        #[structopt(short, long)]
+        entry: bool,
     },
 }
 
@@ -39,14 +39,13 @@ fn main() {
         }
     };
 
-    let opt = Opt::from_args();
-    match opt {
+    match Opt::from_args() {
         Opt::Add => add(),
         Opt::Show => show(),
         Opt::List => list(),
-        Opt::Delete { all, entry } => delete(all, &entry),
-        // Opt::Delete(opts) => delete(opts)
-    };
+        Opt::Delete { all, entry } => delete(all, entry),
+    }
+    .unwrap();
 }
 
 fn add() -> Result<(), Error> {
@@ -93,6 +92,7 @@ fn show() -> Result<(), Error> {
     let decrypted_pwd = String::from_utf8(decrypted_pwd)?;
 
     println!("{}", decrypted_pwd);
+
     Ok(())
 }
 
@@ -134,14 +134,20 @@ fn list() -> Result<(), Error> {
     Ok(())
 }
 
-fn delete(all: bool, entry: &str) -> Result<(), Error> {
-    dbg!("{}", all);
-    if !all {
-        match fs::remove_dir_all(format!("{}/{}", full_dir(), entry)) {
-            Ok(()) => println!("Entry {} was deleted", entry),
+fn delete(all: bool, entry: bool) -> Result<(), Error> {
+    if entry {
+        print!("Enter the name of the entry you want to delete: ");
+        io::stdout().flush()?;
+
+        let mut entry_name = String::new();
+        io::stdin().read_line(&mut entry_name)?;
+        match fs::remove_file(format!("{}/{}", full_dir(), entry_name.trim())) {
+            Ok(()) => println!("Entry {} was deleted", entry_name),
             Err(e) => println!("{}", e),
         };
-    } else {
+    }
+
+    if all {
         match fs::remove_dir_all(full_dir()) {
             Ok(()) => {
                 println!("Your entries have been deleted");
@@ -150,19 +156,6 @@ fn delete(all: bool, entry: &str) -> Result<(), Error> {
         };
     }
 
-    // if all {
-    //     match fs::remove_dir_all(full_dir()) {
-    //         Ok(()) => {
-    //             println!("test")
-    //         },
-    //         Err(e) => {
-    //             println!("{}", e)
-    //         }
-    //     };
-    //     println!("Your entries have been deleted");
-    // } else {
-    //     println!("{}", entry);
-    // }
     Ok(())
 }
 
