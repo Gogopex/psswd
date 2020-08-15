@@ -142,7 +142,7 @@ fn delete(all: bool, entry: bool) -> Result<(), Error> {
         let mut entry_name = String::new();
         io::stdin().read_line(&mut entry_name)?;
         match fs::remove_file(format!("{}/{}", full_dir(), entry_name.trim())) {
-            Ok(()) => println!("Entry {} was deleted", entry_name),
+            Ok(()) => println!("Entry {} was deleted", entry_name.trim()),
             Err(e) => println!("{}", e),
         };
     }
