@@ -51,5 +51,5 @@ SUBCOMMANDS:
     list
     show
 
-Feel free to report any issue you find here: https://github.com/Gogopex/wthr/issues
+Feel free to report any issue you find here: https://github.com/Gogopex/psswd/issues
 ```
