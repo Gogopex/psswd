@@ -45,11 +45,11 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    add
-    config
+    add       Creates a new entry containing an encrypted password
+    delete    Deletes entries or a given entry
     help      Prints this message or the help of the given subcommand(s)
-    list
-    show
+    list      Lists all entries
+    show      Displays a specific entry
 
 Feel free to report any issue you find here: https://github.com/Gogopex/psswd/issues
 ```
