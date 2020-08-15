@@ -1,8 +1,11 @@
 ![Rust](https://github.com/Gogopex/psswd/workflows/Rust/badge.svg?branch=master&event=push)
 
 # psswd
-A simple Rust command line utility to encrypt and manage your passwords. 
-It uses [age](https://github.com/FiloSottile/age) for encryption/decryption. 
+A simple Rust command line utility to manage your passwords. 
+It uses [age (Actually Good Encryption)](https://github.com/FiloSottile/age) to encrypt your passwords, and supports decryption using a passphrase.
+
+## Description
+@TODO
 
 ## Installation
 ```
@@ -11,31 +14,18 @@ cd psswd
 # psswd requires cargo/rustc
 cargo build --release
 ```
-This will generate a bin file in `target/release/build`
+This will generate a bin file in `target/release/build`. 
 
 ## Usage
-If you've just ran `cargo build --release`, replace `psswd` by `./target/release/psswd` in the following examples.
-```bash
-# use `psswd add` to add a password
-$ psswd add
-$ Enter the shortname for your password entry: 
-$ youtube
-$ Enter a password:
-$ Enter a passphrase:
-
-# you can display the plain password by decrypting it with `psswd show`
-$ Enter the shortname for the password you want to show:
-$ Enter your passphrase:
-$ my-plain-password
-```
+If you've just ran `cargo build --release`, you can start using `./target/release/psswd <command>` or add an alias for `psswd` direcly.
 
 ## Demo
-
+![Usage of psswd](https://i.imgur.com/324Ycde.gif)
 
 ## Help
 ```bash
 ⚡ psswd
-psswd 0.1.0
+psswd 0.1.1
 
 USAGE:
     psswd <SUBCOMMAND>
