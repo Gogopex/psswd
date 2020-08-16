@@ -11,10 +11,10 @@ use structopt::StructOpt;
 enum Opt {
     /// Creates a new entry containing an encrypted password.
     #[structopt(alias = "create")]
-    Add,
+    Add { entry: Option<String> },
     /// Displays a specific entry.
     #[structopt(alias = "display")]
-    Show,
+    Show { entry: Option<String> },
     /// Lists entries.
     #[structopt()]
     List,
@@ -40,20 +40,24 @@ fn main() {
     };
 
     match Opt::from_args() {
-        Opt::Add => add(),
-        Opt::Show => show(),
+        Opt::Add { entry } => add(entry),
+        Opt::Show { entry } => show(entry),
         Opt::List => list(),
         Opt::Delete { all, entry } => delete(all, entry),
     }
     .unwrap();
 }
 
-fn add() -> Result<(), Error> {
-    print!("Enter the shortname for your password entry: ");
-    io::stdout().flush()?;
-
+fn add(entry: Option<String>) -> Result<(), Error> {
     let mut shortname = String::new();
-    io::stdin().read_line(&mut shortname)?;
+
+    if let Some(name) = entry {
+        shortname = name;
+    } else {
+        print!("Enter the shortname for your password entry: ");
+        io::stdout().flush()?;
+        io::stdin().read_line(&mut shortname)?;
+    }
 
     let password = rpassword::prompt_password_stdout("Enter a password: ")?;
     let passphrase = rpassword::prompt_password_stdout("Enter a passphrase: ")?;
@@ -74,26 +78,36 @@ fn add() -> Result<(), Error> {
     Ok(())
 }
 
-fn show() -> Result<(), Error> {
-    print!("Enter the shortname for the password you want to show: ");
-    io::stdout().flush()?;
+fn show(entry: Option<String>) -> Result<(), Error> {
+    match entry {
+        Some(name) => {
+            match File::open(format!("{}/{}", full_dir(), name.trim())) {
+                Ok(_) => println!("The entry {} was deleted.", name),
+                Err(e) => println!("Error when trying to delete entry {}. {}", name, e),
+            };
+            Ok(())
+        }
+        None => {
+            print!("Enter the shortname for the password you want to show: ");
+            io::stdout().flush()?;
 
-    let mut shortname = String::new();
-    io::stdin().read_line(&mut shortname)?;
+            let mut shortname = String::new();
+            io::stdin().read_line(&mut shortname)?;
 
-    let file = File::open(format!("{}/{}", full_dir(), shortname.trim()))?;
-    let mut buffer = BufReader::new(file);
+            let file = File::open(format!("{}/{}", full_dir(), shortname.trim()))?;
+            let mut buffer = BufReader::new(file);
 
-    let mut encrypted = vec![];
-    buffer.read_to_end(&mut encrypted)?;
+            let mut encrypted = vec![];
+            buffer.read_to_end(&mut encrypted)?;
 
-    let passphrase = rpassword::prompt_password_stdout("Enter your passphrase: ")?;
-    let decrypted_pwd = decrypt(&encrypted, passphrase)?;
-    let decrypted_pwd = String::from_utf8(decrypted_pwd)?;
+            let passphrase = rpassword::prompt_password_stdout("Enter your passphrase: ")?;
+            let decrypted_pwd = decrypt(&encrypted, passphrase)?;
+            let decrypted_pwd = String::from_utf8(decrypted_pwd)?;
 
-    println!("{}", decrypted_pwd);
-
-    Ok(())
+            println!("{}", decrypted_pwd);
+            Ok(())
+        }
+    }
 }
 
 fn encrypt(password: String, passphrase: String) -> Result<Vec<u8>, Error> {
