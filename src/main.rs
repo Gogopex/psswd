@@ -23,8 +23,7 @@ enum Opt {
     Delete {
         #[structopt(short, long)]
         all: bool,
-        #[structopt(short, long)]
-        entry: bool,
+        entry: Option<String>
     },
 }
 
@@ -79,35 +78,48 @@ fn add(entry: Option<String>) -> Result<(), Error> {
 }
 
 fn show(entry: Option<String>) -> Result<(), Error> {
-    match entry {
-        Some(name) => {
-            match File::open(format!("{}/{}", full_dir(), name.trim())) {
-                Ok(_) => println!("The entry {} was deleted.", name),
-                Err(e) => println!("Error when trying to delete entry {}. {}", name, e),
-            };
-            Ok(())
-        }
-        None => {
-            print!("Enter the shortname for the password you want to show: ");
-            io::stdout().flush()?;
+    let mut shortname = String::new();
 
-            let mut shortname = String::new();
-            io::stdin().read_line(&mut shortname)?;
-
-            let file = File::open(format!("{}/{}", full_dir(), shortname.trim()))?;
-            let mut buffer = BufReader::new(file);
-
-            let mut encrypted = vec![];
-            buffer.read_to_end(&mut encrypted)?;
-
-            let passphrase = rpassword::prompt_password_stdout("Enter your passphrase: ")?;
-            let decrypted_pwd = decrypt(&encrypted, passphrase)?;
-            let decrypted_pwd = String::from_utf8(decrypted_pwd)?;
-
-            println!("{}", decrypted_pwd);
-            Ok(())
-        }
+    if let Some(name) = entry {
+        shortname = name;
+    } else {
+        print!("Enter the shortname for the password you want to show: ");
+        io::stdout().flush()?;
+        io::stdin().read_line(&mut shortname)?;
     }
+
+    let file = File::open(format!("{}/{}", full_dir(), shortname.trim()))?;
+    let mut buffer = BufReader::new(file);
+
+    let mut encrypted = vec![];
+    buffer.read_to_end(&mut encrypted)?;
+
+    let passphrase = rpassword::prompt_password_stdout("Enter your passphrase: ")?;
+    let decrypted_pwd = decrypt(&encrypted, passphrase)?;
+    let decrypted_pwd = String::from_utf8(decrypted_pwd)?;
+
+    println!("{}", decrypted_pwd);
+    Ok(())
+}
+
+fn delete(all: bool, entry: Option<String>) -> Result<(), Error> {
+    if let Some(name) = entry {
+        match fs::remove_file(format!("{}/{}", full_dir(), name.trim())) {
+            Ok(()) => println!("Entry {} was deleted", name.trim()),
+            Err(e) => println!("{}", e),
+        };
+    } else if all {
+        match fs::remove_dir_all(full_dir()) {
+            Ok(()) => {
+                println!("Your entries have been deleted");
+            }
+            Err(e) => println!("{}", e),
+        };
+    } else {
+        println!("Please specify an entry name or a flag. See --help for more info."); 
+    }
+
+    Ok(())
 }
 
 fn encrypt(password: String, passphrase: String) -> Result<Vec<u8>, Error> {
@@ -143,31 +155,6 @@ fn list() -> Result<(), Error> {
 
     for file in files {
         println!("{}", file);
-    }
-
-    Ok(())
-}
-
-fn delete(all: bool, entry: bool) -> Result<(), Error> {
-    if entry {
-        print!("Enter the name of the entry you want to delete: ");
-        io::stdout().flush()?;
-
-        let mut entry_name = String::new();
-        io::stdin().read_line(&mut entry_name)?;
-        match fs::remove_file(format!("{}/{}", full_dir(), entry_name.trim())) {
-            Ok(()) => println!("Entry {} was deleted", entry_name.trim()),
-            Err(e) => println!("{}", e),
-        };
-    }
-
-    if all {
-        match fs::remove_dir_all(full_dir()) {
-            Ok(()) => {
-                println!("Your entries have been deleted");
-            }
-            Err(e) => println!("{}", e),
-        };
     }
 
     Ok(())
