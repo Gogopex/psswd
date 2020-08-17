@@ -20,7 +20,7 @@ This will generate a bin file in `target/release/build`.
 If you've just ran `cargo build --release`, you can start using `./target/release/psswd <command>` or add an alias for `psswd` direcly.
 
 ## Demo
-![Usage of psswd](https://i.imgur.com/324Ycde.gif)
+![Usage of psswd](https://i.imgur.com/THgxjV6.gif)
 
 ## Help
 ```bash
