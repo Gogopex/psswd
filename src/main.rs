@@ -153,9 +153,9 @@ fn list() -> Result<(), Error> {
         files.push(path.unwrap().file_name().into_string().unwrap());
     }
 
-    for file in files {
-        println!("{}", file);
-    }
+    for (index,file) in files.iter().enumerate() {
+        println!("{}. {}",index+1, file); // I added +1 because i do not want the index to start from 0
+    }    
 
     Ok(())
 }
