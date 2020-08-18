@@ -4,9 +4,6 @@
 A simple Rust command line utility to manage your passwords. 
 It uses [age (Actually Good Encryption)](https://github.com/FiloSottile/age) to encrypt your passwords, and supports decryption using a passphrase.
 
-## Description
-@TODO
-
 ## Installation
 - You can build it yourself:
 ```
