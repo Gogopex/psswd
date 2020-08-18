@@ -8,6 +8,7 @@ It uses [age (Actually Good Encryption)](https://github.com/FiloSottile/age) to 
 @TODO
 
 ## Installation
+- You can build it yourself:
 ```
 git clone https://github.com/Gogopex/psswd.git
 cd psswd
@@ -15,6 +16,13 @@ cd psswd
 cargo build --release
 ```
 This will generate a bin file in `target/release/build`. 
+
+
+- Or download it via `cargo`:
+```
+cargo install psswd
+```
+
 
 ## Usage
 If you've just ran `cargo build --release`, you can start using `./target/release/psswd <command>` or add an alias for `psswd` direcly.
