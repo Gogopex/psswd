@@ -1,6 +1,5 @@
 use anyhow::{Error, Result};
 use io::{BufReader, Read, Write};
-use secrecy::Secret;
 use std::fs::{self, File};
 use std::io;
 use structopt::clap::AppSettings;
@@ -23,7 +22,7 @@ enum Opt {
     Delete {
         #[structopt(short, long)]
         all: bool,
-        entry: Option<String>
+        entry: Option<String>,
     },
 }
 
@@ -116,17 +115,17 @@ fn delete(all: bool, entry: Option<String>) -> Result<(), Error> {
             Err(e) => println!("{}", e),
         };
     } else {
-        println!("Please specify an entry name or a flag. See --help for more info."); 
+        println!("Please specify an entry name or a flag. See --help for more info.");
     }
 
     Ok(())
 }
 
 fn encrypt(password: String, passphrase: String) -> Result<Vec<u8>, Error> {
-    let encryptor = age::Encryptor::with_user_passphrase(Secret::new(passphrase));
+    let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(passphrase));
 
     let mut encrypted = vec![];
-    let mut writer = encryptor.wrap_output(&mut encrypted, age::Format::Binary)?;
+    let mut writer = encryptor.wrap_output(&mut encrypted)?;
     writer.write_all(&password.as_bytes())?;
     writer.finish()?;
 
@@ -140,7 +139,7 @@ fn decrypt(encrypted_pwd: &[u8], passphrase: String) -> Result<Vec<u8>, Error> {
     };
 
     let mut decrypted = vec![];
-    let mut reader = decryptor.decrypt(&Secret::new(passphrase), None)?;
+    let mut reader = decryptor.decrypt(&age::secrecy::Secret::new(passphrase), None)?;
     reader.read_to_end(&mut decrypted)?;
 
     Ok(decrypted)
@@ -153,9 +152,9 @@ fn list() -> Result<(), Error> {
         files.push(path.unwrap().file_name().into_string().unwrap());
     }
 
-    for (index,file) in files.iter().enumerate() {
-        println!("{}. {}",index+1, file); 
-    }    
+    for (index, file) in files.iter().enumerate() {
+        println!("{}. {}", index + 1, file);
+    }
 
     Ok(())
 }
